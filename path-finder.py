@@ -39,11 +39,42 @@ def find_neighbors(maze, row, col):
     return neighbors
 
 
-def find_path(maze, stdscr=None):
-    start = "O"
-    end = "X"
-    obstacle = "#"
+def find_dfs_path(maze, coordinates, stdscr=None):
+    start, end, obstacle = coordinates
 
+    start_pos = find_start(maze, start)
+    dfs_q = []
+    visited = set()
+
+    dfs_q.append((start_pos, [start_pos]))
+
+    while not len(dfs_q) == 0:
+        current_pos, path = dfs_q.pop()
+        row, col = current_pos
+
+        stdscr.clear()
+        print_maze(maze, stdscr, path)
+        time.sleep(0.2)
+        stdscr.refresh()
+
+        if maze[row][col] == end:
+            return path
+
+        neighbors = find_neighbors(maze, row, col)
+        for neighbor in neighbors:
+            if neighbor in visited:
+                continue
+            r, c = neighbor
+            if maze[r][c] == obstacle:
+                continue
+            new_path = path + [neighbor]
+            dfs_q.append((neighbor, new_path))
+            visited.add(neighbor)
+
+
+def find_bfs_path(maze, coordinates, stdscr=None):
+
+    start, end, obstacle = coordinates
     start_pos = find_start(maze, start)
     bfs_q = queue.Queue()
     visited = set()
@@ -90,7 +121,10 @@ def main(stdscr):
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
 
-    find_path(maze, stdscr)
+    start = "O"
+    end = "X"
+    obstacle = "#"
+    find_dfs_path(maze, (start, end, obstacle), stdscr)
     stdscr.getch()
 
 
